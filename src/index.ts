@@ -4,6 +4,7 @@ import { stringify } from 'csv-stringify';
 import { performance } from 'perf_hooks';
 import { Graph } from 'graphlib';
 import mwis from './mwis/mwisExponential';
+import mwisPD from './mwis/mwisPD';
 
 const randomNumber = (min: number, max: number): number => {
   return Math.ceil(Math.random() * (max - min) + min);
@@ -11,31 +12,25 @@ const randomNumber = (min: number, max: number): number => {
 
 const generateGraph = ():Graph => {
   const graph = new Graph({ directed: false });
-  for(let nodeName = 'a'; nodeName !== 'd'; nodeName = String.fromCharCode(nodeName.charCodeAt(0) + 1)) {
-    console.log(nodeName);
+
+  const upToChar = 'a'
+  for(let nodeName = 'A'; nodeName !== upToChar; nodeName = String.fromCharCode(nodeName.charCodeAt(0) + 1)) {
     graph.setNode(nodeName, randomNumber(0, 10)); // [1, 10]
-    graph.setEdge(nodeName, String.fromCharCode(nodeName.charCodeAt(0) + 1));
+    
+    if(String.fromCharCode(nodeName.charCodeAt(0) + 1) !== upToChar)
+      graph.setEdge(nodeName, String.fromCharCode(nodeName.charCodeAt(0) + 1));
   }
   return graph;
 }
 
 
-// const graph = generateGraph();
-const graph = new Graph({ directed: false });
+const graph = generateGraph();
 
-graph.setNode('a', 1);
-graph.setNode('b', 4);
-graph.setEdge('a', 'b');
-graph.setNode('c', 5);
-graph.setEdge('b', 'c');
-graph.setNode('d', 4);
-graph.setEdge('c', 'd');
+graph.nodes().map(node => console.log(node, graph.node(node)))
 
-console.log(graph.nodes());
-console.log(graph.edges());
+console.log(mwisPD(graph));
+console.log(mwis(graph));
 
-
-console.log( mwis(graph));
 // stringify(
 //   data,
 //   {
