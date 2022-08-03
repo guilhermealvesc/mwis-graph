@@ -2,12 +2,11 @@ import { Graph } from "graphlib";
 import { Response } from "./interface/Response";
 import { getNext3Nodes, getNodeAtNthStep, getPathSizeUpTo3Steps } from "./mwisExponential";
 
-function mwisStub(graph: Graph, startNode: string, fatherNode: string, memo: Map<string, Response>): Response {
-  const memoResponse = memo.get(startNode)
+const memo = new Map<string, Response>();
 
-  if(memoResponse) {
-    return memoResponse;
-  }
+function mwisStub(graph: Graph, startNode: string, fatherNode: string): Response {
+  const memoValue = memo.get(startNode);
+  if(memoValue) return memoValue;
 
   const pathSize = getPathSizeUpTo3Steps(graph, startNode, fatherNode);
 
@@ -25,26 +24,30 @@ function mwisStub(graph: Graph, startNode: string, fatherNode: string, memo: Map
     return response;
   } 
   
-  let greaterSol = mwisStub(graph, secondNode, firstNode, memo);
-  let lowerSol = mwisStub(graph, thirdNode, secondNode, memo);
+  let greaterSol = mwisStub(graph, secondNode, firstNode);
+  let lowerSol = mwisStub(graph, thirdNode, secondNode);
 
   if(greaterSol.value < lowerSol.value) {
     greaterSol = lowerSol;
   }
+  // a b c d e f g
+  const returnValue: Response = {
+    value: greaterSol.value + graph.node(startNode),
+    nodes: [...greaterSol.nodes, startNode]
+  }
   
-  greaterSol.value += graph.node(startNode);
-  greaterSol.nodes.push(startNode);
-  
-  memo.set(startNode, greaterSol);
-  return greaterSol;
+  memo.set(startNode, {
+   ...returnValue
+  });
+  return returnValue;
 }
 
 export default function mwisPD(graph: Graph) {
-  const memo = new Map<string, Response>();
-  const firstNode = getNodeAtNthStep(graph, 1, 'A', '-');
+  memo.clear();
+  const firstNode = getNodeAtNthStep(graph, 1, '0', '-');
 
-  let greaterSol = mwisStub(graph, 'A', '-', memo);
-  let lowerSol = mwisStub(graph, firstNode, 'A', memo);
+  let greaterSol = mwisStub(graph, '0', '-');
+  let lowerSol = mwisStub(graph, firstNode, '0');
 
   if(greaterSol.value < lowerSol.value) {
     greaterSol = lowerSol;

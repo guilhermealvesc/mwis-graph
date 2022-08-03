@@ -18,7 +18,7 @@ export function getPathSizeUpTo3Steps(graph: Graph, startNode: string, fatherNod
 export function getNodeAtNthStep(graph: Graph, steps: number, startNode: string, fatherNode: string): string {
   for(let i = 0; i < steps; i++) {
     const neighbors = graph.neighbors(startNode) ?? [];
-    const neighborsWithoutFather = neighbors.filter(node => node != fatherNode);
+    const neighborsWithoutFather = neighbors.filter(node => node !== fatherNode);
     if(neighborsWithoutFather.length !== 0) {
       fatherNode = startNode;
       startNode = neighborsWithoutFather[0];
@@ -35,15 +35,14 @@ export function getNext3Nodes(graph: Graph, startNode: string, fatherNode: strin
     thirdNode: getNodeAtNthStep(graph, 3, startNode, fatherNode),
   }
 }
-
 function mwisStub(graph: Graph, startNode: string, fatherNode: string): Response {
+
   const pathSize = getPathSizeUpTo3Steps(graph, startNode, fatherNode);
 
   const {firstNode, secondNode, thirdNode} = getNext3Nodes(graph, startNode, fatherNode);
 
   if (pathSize <= 2) return {value: graph.node(startNode), nodes: [startNode]} ?? {value: 0, nodes: []};
   if (pathSize === 3) return {value: graph.node(startNode) + graph.node(secondNode), nodes: [startNode, secondNode]};
-  
   
   let greaterSol = mwisStub(graph, secondNode, firstNode);
   let lowerSol = mwisStub(graph, thirdNode, secondNode);
@@ -59,9 +58,10 @@ function mwisStub(graph: Graph, startNode: string, fatherNode: string): Response
 }
 
 export default function mwis(graph: Graph) {
-  const firstNode = getNodeAtNthStep(graph, 1, 'A', '-');
-  let greaterSol = mwisStub(graph, 'A', '-')
-  let lowerSol = mwisStub(graph, firstNode, 'A')
+  const firstNode = getNodeAtNthStep(graph, 1, '0', '-');
+
+  let greaterSol = mwisStub(graph, '0', '-')
+  let lowerSol = mwisStub(graph, firstNode, '0')
 
   if(greaterSol.value < lowerSol.value) {
     greaterSol = lowerSol;
